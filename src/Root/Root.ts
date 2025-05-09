@@ -14,6 +14,9 @@ class Root extends HTMLElement {
     render() {
         if (!this.shadowRoot) return;
 
+        const state = store.getState();
+        const gardenPlants = state.gardenPlants || [];
+
         this.shadowRoot.innerHTML = `
             <style>
                 :host {
@@ -43,6 +46,41 @@ class Root extends HTMLElement {
                 .nav-button:hover {
                     background: #0056b3;
                 }
+
+                .plant-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                    gap: 16px;
+                }
+
+                .plant-card {
+                    background: #fff;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                    padding: 12px;
+                    text-align: center;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .plant-card img {
+                    width: 80px;
+                    height: 80px;
+                    object-fit: contain;
+                    margin-bottom: 8px;
+                }
+
+                .common-name {
+                    font-weight: bold;
+                    color: #2c3e50;
+                }
+
+                .scientific-name {
+                    font-style: italic;
+                    color: #7f8c8d;
+                    font-size: 0.95em;
+                }
             </style>
 
             <div class="nav">
@@ -52,8 +90,24 @@ class Root extends HTMLElement {
             </div>
 
             <div id="content">
-                <h1>Bienvenido a tu Jardín Virtual</h1>
+                <h1>Mi Jardín Virtual</h1>
+                <div class="plant-grid">
+                    ${gardenPlants
+                        .sort((a, b) => a.commonName.localeCompare(b.commonName))
+                        .map(plant => `
+                            <div class="plant-card">
+                                <img src="${plant.image}" alt="${plant.commonName}">
+                                <div class="common-name">${plant.commonName}</div>
+                                <div class="scientific-name">${plant.scientificName}</div>
+                            </div>
+                        `).join('')}
+                </div>
             </div>
+        `;
+    }
+}
+
+customElements.define('root-element', Root);
         `;
     }
 }
