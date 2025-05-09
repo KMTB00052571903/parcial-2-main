@@ -2,6 +2,6 @@ import { AppDispatcher } from './Dispatcher';
 
 export const Actions = {
     do: () => {
-        AppDispatcher.dispatch({});
+        AppDispatcher.dispatch({ type: "SET_PLANTS" });
     },
 };
