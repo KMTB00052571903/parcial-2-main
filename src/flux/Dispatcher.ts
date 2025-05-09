@@ -1,6 +1,8 @@
+import { Plant } from '../services/Plants';
+
 export interface Action {
-    type: string;
-    payload?: string;
+    type: 'SET_PLANTS' | 'ADD_TO_GARDEN' | 'REMOVE_FROM_GARDEN' | 'CHANGE_PAGE' | 'UPDATE_GARDEN_NAME';
+    payload?: Plant[] | number | string;
 }
 
 export class Dispatcher {
@@ -14,7 +16,7 @@ export class Dispatcher {
         this._listeners.push(callback);
     }
 
-    dispatch(action: any): void {
+    dispatch(action: Action): void {
         for (const listener of this._listeners) {
             listener(action);
         }
