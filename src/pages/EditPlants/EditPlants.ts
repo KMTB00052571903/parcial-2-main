@@ -3,6 +3,7 @@ import { setPlantas } from '../../flux/Actions';
 
 class EditPlantsPage extends HTMLElement {
     private selectedPlantId: string | null = null;
+    private unsubscribe: (() => void) | null = null;
 
     constructor() {
         super();
@@ -11,7 +12,13 @@ class EditPlantsPage extends HTMLElement {
 
     connectedCallback() {
         this.render();
-        store.subscribe(this.render.bind(this));
+        const listener = () => this.render();
+        store.subscribe(listener);
+        this.unsubscribe = () => store.unsubscribe(listener);
+    }
+
+    disconnectedCallback() {
+        if (this.unsubscribe) this.unsubscribe();
     }
 
     render() {
@@ -51,7 +58,6 @@ class EditPlantsPage extends HTMLElement {
                     ${plantas.map(p => `
                         <plant-card 
                             plant='${JSON.stringify(p)}' 
-                            onclick="this.dispatchEvent(new CustomEvent('select-plant', { detail: '${p.id}' }))"
                         ></plant-card>
                     `).join('')}
                 </div>
@@ -63,19 +69,17 @@ class EditPlantsPage extends HTMLElement {
                         <input type="text" id="imagen" value="${selectedPlant.imagen}" placeholder="URL de la Imagen">
                         <textarea id="descripcion" placeholder="Descripción">${selectedPlant.descripcion}</textarea>
                         <button id="guardarPlanta">Guardar Cambios</button>
+                        <button id="cancelarEdicion">Cancelar</button>
                     </div>
                 ` : ''}
             </div>
         `;
 
         this.shadowRoot.querySelectorAll('plant-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                const target = e.target as HTMLElement;
-                const plantId = target.getAttribute('onclick')?.split("'")[1];
-                if (plantId) {
-                    this.selectedPlantId = plantId;
-                    this.render();
-                }
+            card.addEventListener('plant-click', (e: any) => {
+                const plantId = e.detail;
+                this.selectedPlantId = plantId;
+                this.render();
             });
         });
 
@@ -94,6 +98,11 @@ class EditPlantsPage extends HTMLElement {
             );
 
             setPlantas(updatedPlantas);
+            this.selectedPlantId = null;
+            this.render();
+        });
+
+        this.shadowRoot.querySelector('#cancelarEdicion')?.addEventListener('click', () => {
             this.selectedPlantId = null;
             this.render();
         });

@@ -43,7 +43,9 @@ class Store {
             { id: '19', nombreComun: 'Albahaca', nombreCientifico: 'Ocimum basilicum', imagen: 'https://agroactivocol.com/wp-content/uploads/2020/08/7e2db098-albahaca-basil-adobestock_81129315-scaled-1.jpg.webp', descripcion: 'Anual de India, florece en verano, requiere sol pleno y riego moderado.' },
             { id: '20', nombreComun: 'Perejil', nombreCientifico: 'Petroselinum crispum', imagen: 'https://www.finedininglovers.com/es/sites/g/files/xknfdk1706/files/2023-04/ES%20SEO%20Perejil_%C2%A9unsplash_chandan%20chaurasia%20%281%29_0.jpg', descripcion: 'Bienal de la región Mediterránea, florece en verano, requiere sol pleno a sombra parcial y riego moderado.' }
         ],
-        jardin: { nombre: 'Mi Jardín', plantas: [] },
+        jardin: { nombre: 'Mi Jardín', plantas: [
+            '1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20'
+        ] },
         pagina: 'home'
     };
 

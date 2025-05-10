@@ -9,25 +9,25 @@ class PlantCard extends HTMLElement {
         descripcion: ''
     };
 
+    static get observedAttributes() {
+        return ['plant', 'en-jardin'];
+    }
+
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
     }
 
-    static get observedAttributes() {
-        return ['plant'];
-    }
-
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
         if (name === 'plant') {
             this.plant = JSON.parse(newValue);
-            this.render();
         }
+        this.render();
     }
 
     render() {
         if (!this.shadowRoot) return;
-
+        const enJardin = this.getAttribute('en-jardin') === 'true';
         this.shadowRoot.innerHTML = `
             <style>
                 .card {
@@ -37,6 +37,8 @@ class PlantCard extends HTMLElement {
                     margin: 8px;
                     display: inline-block;
                     width: 200px;
+                    cursor: pointer;
+                    opacity: ${enJardin ? '1' : '0.5'};
                 }
                 img {
                     width: 100%;
@@ -49,6 +51,13 @@ class PlantCard extends HTMLElement {
                 <p>${this.plant.nombreCientifico}</p>
             </div>
         `;
+        this.shadowRoot.querySelector('.card')?.addEventListener('click', () => {
+            this.dispatchEvent(new CustomEvent('plant-click', {
+                detail: this.plant.id,
+                bubbles: true,
+                composed: true
+            }));
+        });
     }
 }
 

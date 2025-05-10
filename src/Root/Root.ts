@@ -2,6 +2,8 @@ import { store } from '../flux/Store';
 import { setPagina } from '../flux/Actions';
 
 class Root extends HTMLElement {
+    private unsubscribe: (() => void) | null = null;
+
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
@@ -9,7 +11,13 @@ class Root extends HTMLElement {
 
     connectedCallback() {
         this.render();
-        store.subscribe(this.render.bind(this));
+        const listener = () => this.render();
+        store.subscribe(listener);
+        this.unsubscribe = () => store.unsubscribe(listener);
+    }
+
+    disconnectedCallback() {
+        if (this.unsubscribe) this.unsubscribe();
     }
 
     render() {
@@ -18,10 +26,35 @@ class Root extends HTMLElement {
         const { pagina } = store.getState();
 
         this.shadowRoot.innerHTML = `
+            <style>
+                nav {
+                    display: flex;
+                    gap: 8px;
+                    margin-bottom: 24px;
+                    background: #f5f5f5;
+                    padding: 12px 0;
+                    border-radius: 8px;
+                }
+                button {
+                    padding: 8px 16px;
+                    border: none;
+                    border-radius: 4px;
+                    background: #e0e0e0;
+                    cursor: pointer;
+                    font-size: 1rem;
+                }
+                button.active {
+                    background: #4CAF50;
+                    color: white;
+                }
+                #content {
+                    min-height: 300px;
+                }
+            </style>
             <nav>
-                <button onclick="this.dispatchEvent(new CustomEvent('navigate', { detail: 'home' }))">Inicio</button>
-                <button onclick="this.dispatchEvent(new CustomEvent('navigate', { detail: 'edit-garden' }))">Modificar Jardín</button>
-                <button onclick="this.dispatchEvent(new CustomEvent('navigate', { detail: 'edit-plants' }))">Modificar Plantas</button>
+                <button id="btn-inicio" class="${pagina === 'home' ? 'active' : ''}">Inicio</button>
+                <button id="btn-jardin" class="${pagina === 'edit-garden' ? 'active' : ''}">Modificar Jardín</button>
+                <button id="btn-plantas" class="${pagina === 'edit-plants' ? 'active' : ''}">Modificar Plantas</button>
             </nav>
             <div id="content">
                 ${pagina === 'home' ? '<home-page></home-page>' : ''}
@@ -30,13 +63,9 @@ class Root extends HTMLElement {
             </div>
         `;
 
-        this.shadowRoot.querySelectorAll('button').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const target = e.target as HTMLElement;
-                const page = target.getAttribute('onclick')?.split("'")[1];
-                if (page) setPagina(page as 'home' | 'edit-garden' | 'edit-plants');
-            });
-        });
+        this.shadowRoot.querySelector('#btn-inicio')?.addEventListener('click', () => setPagina('home'));
+        this.shadowRoot.querySelector('#btn-jardin')?.addEventListener('click', () => setPagina('edit-garden'));
+        this.shadowRoot.querySelector('#btn-plantas')?.addEventListener('click', () => setPagina('edit-plants'));
     }
 }
 
